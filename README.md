@@ -69,7 +69,7 @@ The application features an interactive dashboard where users can enter employee
 ### Visualization
 
 - Recharts
-- Chart.js *(if used)*
+
 
 ---
 
