@@ -1,0 +1,14 @@
+venv/
+notebooks/
+data/
+reports/
+tests/
+.git/
+__pycache__/
+*.pyc
+.pytest_cache/
+frontend/node_modules/
+frontend/dist/
+frontend/.gitignore
+*.md
+.agents/

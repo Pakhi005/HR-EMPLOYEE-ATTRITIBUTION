@@ -1,0 +1,40 @@
+# render.yaml — Deploy to Render.com
+# Push this repo to GitHub, then on render.com:
+#   Dashboard → New → Blueprint → connect your repo → Deploy
+#
+# This deploys:
+#   1. hr-attrition-api  → FastAPI backend  (Web Service)
+#   2. hr-attrition-ui   → React frontend   (Static Site)
+
+services:
+  # ── FastAPI Backend ──────────────────────────────────────────────
+  - type: web
+    name: hr-attrition-api
+    runtime: python
+    plan: free          # change to "starter" for always-on
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+    healthCheckPath: /health
+
+  # ── React Frontend (Static Site) ─────────────────────────────────
+  - type: web
+    name: hr-attrition-ui
+    runtime: static
+    buildCommand: cd frontend && npm ci && npm run build
+    staticPublishPath: frontend/dist
+    # Proxy /api/* calls to the backend — replace the URL below
+    # with your actual Render backend URL after first deploy.
+    routes:
+      - type: rewrite
+        source: /api/*
+        destination: https://hr-attrition-api.onrender.com/*
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable

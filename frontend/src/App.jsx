@@ -37,8 +37,9 @@ export default function App() {
     });
 
     try {
-      // Point to absolute backend URL since frontend runs on Vite (port 5173 or similar)
-      const response = await fetch('http://127.0.0.1:8001/predict', {
+      // Use VITE_API_URL env var (set to /api in Docker) with local dev fallback
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001';
+      const response = await fetch(`${API_BASE}/predict`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

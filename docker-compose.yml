@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  # ── FastAPI Backend ──────────────────────────────────────────────
+  backend:
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    container_name: hr-attrition-api
+    environment:
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount models dir so you can hot-swap models without rebuilding
+      - ./models:/code/models:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ── React / Vite Frontend (served via Nginx) ─────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hr-attrition-ui
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
